@@ -1,15 +1,23 @@
 import React, { Component } from "react";
 import "bulma/css/bulma.css";
 import MyComponents from "./Map";
+import StarsRating from "stars-rating";
 import SearchBar from "./SearchBar";
 import ZoomClass from "../utils/Zoom";
 import SendCords from "../utils/sendCords";
+import LoadingFunctionComponent from "./LoadingComponent";
 import SubjectTable from "./subjectTable";
 import ClipLoader from "react-spinners/ClipLoader";
-import { Redirect } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 class HomePage extends Component {
   state = {
+    studentRate: null,
+    rating: null,
+    initialize: false,
     zoomstudent: false,
+    stars: false,
     zoomisok: false,
     clearCounter: false,
     id: null,
@@ -33,18 +41,30 @@ class HomePage extends Component {
     waitingzoom: false,
     viewteachersandnotreload: false,
   };
-  intervalID = 0;
+  intervalIDUser = 0;
+  intervalIDTeacher = 0;
+  intervalIDZoom = 0;
   componentDidMount() {
     const sendCords = new SendCords();
     let newArrayofSubjects = [];
     sendCords.getAllTeachers().then((response) => {
       response.data.map((element) => {
-        newArrayofSubjects.push(element.subject);
+        return newArrayofSubjects.push(element.subject);
       });
     });
     this.setState({
       subjects: newArrayofSubjects,
     });
+  }
+  teacherTimeforRates() {
+    return setTimeout(() => {
+      this.setState({
+        stars: true,
+      });
+    }, 5000);
+  }
+  ratingFunction() {
+    this.teacherTimeforRates();
   }
   componentWillMount() {
     navigator.geolocation.getCurrentPosition((position) => {
@@ -81,12 +101,12 @@ class HomePage extends Component {
       });
   };
   getAvailableUser = () => {
-    this.intervalID = setInterval(() => {
+    this.intervalIDUser = setInterval(() => {
       this.findTheUser();
     }, 5000);
   };
   getAvailableTeacher = () => {
-    this.intervalID = setInterval(() => {
+    this.intervalIDTeacher = setInterval(() => {
       this.findTheTeacher();
     }, 5000);
   };
@@ -106,8 +126,8 @@ class HomePage extends Component {
       }
     });
   };
-  clearTheInterval = () => {
-    clearInterval(this.intervalID);
+  clearTheInterval = (interval) => {
+    clearInterval(interval);
   };
   changeStateInvalidRequest = () => {
     this.setState({
@@ -117,14 +137,13 @@ class HomePage extends Component {
     });
   };
   zoomTimeFunc = () => {
-    console.log("hey!");
-    this.intervalID = setInterval(() => {
+    this.intervalIDZoom = setInterval(() => {
       this.changeStateInvalidRequest();
     }, 60000);
   };
   clearValues = () => {
     if (this.state.clearCounter) {
-      this.clearTheInterval();
+      this.clearTheInterval(this.intervalIDZoom);
     }
     this.zoomTimeFunc();
   };
@@ -140,20 +159,44 @@ class HomePage extends Component {
       .then((response) => {
         console.log("my response", response);
         if (response.data.length > 0) {
-          this.clearTheInterval();
+          this.clearTheInterval(this.intervalIDTeacher);
           this.setState({
             zoomLink: response.data[0].zoomlink,
             passwordzoomLink: response.data[0].zoompassword,
             waiting: "received",
             reload: false,
           });
+          this.ratingFunction();
         } else if (this.state.clearCounter) {
-          this.clearTheInterval();
+          this.clearTheInterval(this.intervalIDTeacher);
         }
       });
   };
   sendZoomLinktoDb = () => {
     this.GetZoom();
+  };
+  GetRate = () => {
+    this.intervalIDRate = setInterval(() => {
+      this.findTheRate();
+    }, 5000);
+  };
+  findTheRate = () => {
+    const sendCords = new SendCords();
+    sendCords
+      .getRateBackEnd(this.props.loggedInUser.username)
+      .then((response) => {
+        console.log("my rate response", response);
+        if (response.data.length > 0) {
+          this.clearTheInterval(this.intervalIDRate);
+          this.setState({
+            studentRate: response.data[0].usernameStudent,
+            rating: response.data[0].rating,
+          });
+          toast.success(
+            `🤯 ${this.state.studentRate} just gave you ${this.state.rating} stars`
+          );
+        }
+      });
   };
   GetZoom = () => {
     this.setState({
@@ -188,6 +231,7 @@ class HomePage extends Component {
       .then((response) => {
         console.log("update response", response);
       });
+    this.GetRate();
   };
   RemoveCoordstoDb = (event) => {
     event.preventDefault();
@@ -202,6 +246,29 @@ class HomePage extends Component {
     });
     sendCords.deleteAllTeachewithCoords(this.state.loggedInUser.username);
     this.clearTheInterval();
+  };
+  rateSend = (rating) => {
+    const sendCords = new SendCords();
+    sendCords
+      .sendRate(
+        rating,
+        this.props.loggedInUser.username,
+        this.state.chosenteacher.username
+      )
+      .then(() => {
+        this.setState({
+          stars: false,
+        });
+        toast.success("⭐ Rating sent!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      });
   };
   SendUsertoDb = () => {
     const sendCords = new SendCords();
@@ -232,8 +299,10 @@ class HomePage extends Component {
     let newArrayofChosenTeachers = [];
     sendCords.getAllTeachers().then((response) => {
       response.data.map((element) => {
-        if (element.subject == this.state.filterQuery) {
+        if (element.subject === this.state.filterQuery) {
           return newArrayofChosenTeachers.push(element);
+        } else {
+          return null;
         }
       });
       console.log(newArrayofChosenTeachers);
@@ -282,8 +351,9 @@ class HomePage extends Component {
     if (this.props.isteacher) {
       //Teacher vai ter post
       return (
-        <div>
+        <div className="home-page-div">
           <MyComponents></MyComponents>
+          <ToastContainer />
           {!this.state.online ? (
             <div className="available-button-teacher">
               <form onSubmit={this.SendCoordstoDb}>
@@ -379,7 +449,8 @@ class HomePage extends Component {
     } else {
       //Student vai ter get
       return (
-        <div>
+        <div className="home-page-div">
+          <ToastContainer />
           <MyComponents getTeachers={true}></MyComponents>
           <hr></hr>
           <SearchBar onFilter={this.handleFilterProducts}></SearchBar>
@@ -398,7 +469,7 @@ class HomePage extends Component {
                       <figure class="image is-48x48">
                         <img
                           src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-                          alt="Placeholder image"
+                          alt="Placeholder"
                         ></img>
                       </figure>
                     </div>
@@ -475,7 +546,7 @@ class HomePage extends Component {
           ) : null}
           {this.state.zoomLink ? (
             <div>
-              <div className="card-bulmaTeacher">
+              <div className="card-bulma content-center">
                 <div class="card">
                   <div class="card-content">
                     <div class="media">
@@ -496,6 +567,19 @@ class HomePage extends Component {
                   </div>
                 </div>
               </div>
+            </div>
+          ) : null}
+          {this.state.stars ? (
+            <div className="stars">
+              <StarsRating
+                count={5}
+                onChange={this.rateSend}
+                size={80}
+                color2={"#ffd700"}
+              />
+              <h1 className="h1-findingastudent-student-stars">
+                Rate teacherjoao's class
+              </h1>
             </div>
           ) : null}
         </div>

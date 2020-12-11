@@ -4,10 +4,8 @@ import { Link, withRouter } from "react-router-dom";
 import {
   Container,
   FormWrap,
-  Icon,
   FormContent,
   Form,
-  FormH1,
   FormLabel,
   FormInput,
   FormButton,
@@ -64,6 +62,9 @@ class Signup extends React.Component {
                 <Text>
                   Already have account?
                   <Link to={"/login"}> Login</Link>
+                  <br></br>
+                  Are you a teacher?
+                  <Link to={"/teacherinfo"}> Register here</Link>
                 </Text>
               </Form>
             </FormContent>

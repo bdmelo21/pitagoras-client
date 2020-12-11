@@ -18,7 +18,7 @@ class subjectTable extends React.Component {
             {this.props.filteredSubjects
               .sort()
               .filter(function (item, pos, ary) {
-                return !pos || item != ary[pos - 1];
+                return !pos || item !== ary[pos - 1];
               })
               .map((subject) => {
                 return (

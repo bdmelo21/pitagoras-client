@@ -2,7 +2,11 @@ import React from "react";
 import "bulma/css/bulma.css";
 import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+  faHome,
+  faSignOutAlt,
+  faUserGraduate,
+} from "@fortawesome/free-solid-svg-icons";
 import AuthService from "../utils/auth";
 
 class NavBar extends React.Component {
@@ -23,6 +27,7 @@ class NavBar extends React.Component {
         >
           <div class="navbar-brand">
             <a
+              href="/#"
               role="button"
               class="navbar-burger burger"
               aria-label="menu"
@@ -46,6 +51,9 @@ class NavBar extends React.Component {
               </div>
             </div>
             <div className="div-username">
+              <div className="home-icon-student">
+                <FontAwesomeIcon icon={faUserGraduate} />
+              </div>
               <h1 className="h1-username">
                 Hello, {this.props.loggedInUser.username}
               </h1>
@@ -68,7 +76,7 @@ class NavBar extends React.Component {
         </nav>
       );
     } else {
-      return <div>I'm just a nav,baby</div>;
+      return null;
     }
   }
 }

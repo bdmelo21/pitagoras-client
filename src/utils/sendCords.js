@@ -2,14 +2,14 @@ import axios from "axios";
 class SendCords {
   constructor() {
     let service = axios.create({
-      baseURL: `${process.env.REACT_APP_PROJECTS_API}`,
+      baseURL: `${process.env.REACT_APP_PROJECTS_API}/api`,
       //send authenticated encrypted info back to the server
       withCredentials: true,
     });
     this.service = service;
   }
   getTeacher(id) {
-    return this.service.get(`/dashboard/teacher/${id}`);
+    return this.service.get(`/teacher/${id}`);
   }
   TeacherwithCoords = (
     lat,
@@ -23,7 +23,7 @@ class SendCords {
     phonenumber,
     info
   ) => {
-    return this.service.post(`/dashboard/availableteacher`, {
+    return this.service.post(`/availableteacher`, {
       lat,
       lng,
       firstname,
@@ -37,7 +37,7 @@ class SendCords {
     });
   };
   UserwithCoords = (lat, lng, username, teacher, email) => {
-    return this.service.post(`/dashboard/availableuser`, {
+    return this.service.post(`/availableuser`, {
       lat,
       lng,
       username,
@@ -46,28 +46,35 @@ class SendCords {
     });
   };
   deleteTeacherwithCoords(id) {
-    return this.service.delete(`/dashboard/deleteteacher/${id}`);
+    return this.service.delete(`/deleteteacher/${id}`);
   }
   getAllTeachers() {
-    return this.service.get("/dashboard/allteachers");
+    return this.service.get("/allteachers");
   }
   getUser(username) {
-    return this.service.get(`/dashboard/allusersavailable/${username}`);
+    return this.service.get(`/allusersavailable/${username}`);
   }
   getthisAvailableTeacher(username) {
-    return this.service.get(`/dashboard/allteachersavailable/${username}`);
+    return this.service.get(`/allteachersavailable/${username}`);
   }
   deleteAllTeachewithCoords(username) {
-    return this.service.delete(
-      `/dashboard/deleteallteachersavailable/${username}`
-    );
+    return this.service.delete(`/deleteallteachersavailable/${username}`);
   }
   UpdateUserwithCoords(id, accept, zoomlink, zoompassword) {
-    return this.service.put(`/dashboard/updateavailableuser/${id}`, {
+    return this.service.put(`/updateavailableuser/${id}`, {
       accept,
       zoomlink,
       zoompassword,
     });
+  }
+  sendRate(rating, usernameStudent, usernameTeacher) {
+    return this.service.post(`/updatedteacherrate/${rating}`, {
+      usernameStudent,
+      usernameTeacher,
+    });
+  }
+  getRateBackEnd(username) {
+    return this.service.get(`/ratings/${username}`);
   }
 }
 

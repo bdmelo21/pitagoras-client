@@ -1,10 +1,5 @@
 import "./App.css";
-import {
-  Redirect,
-  Route,
-  Switch,
-  BrowserRouter as Router,
-} from "react-router-dom";
+import { Route, Switch, BrowserRouter as Router } from "react-router-dom";
 import React from "react";
 import Login from "./components/LogIn/Login";
 import AuthService from "./utils/auth";
@@ -13,6 +8,7 @@ import Layout from "./components/layoutPage";
 import NavBar from "./components/NavBar";
 import TeacherInfo from "./components/TeacherSignUp/teacherInfo";
 import HomePage from "./components/homePage";
+import Footer from "./components/Footer/index";
 
 class App extends React.Component {
   state = {
@@ -77,15 +73,9 @@ class App extends React.Component {
                 return <Login setCurrentUser={this.setCurrentUser} />;
               }}
             />
-            <Route
-              exact
-              path="/login-google"
-              render={() => {
-                window.location.href = `${process.env.REACT_APP_PROJECTS_API}/api/auth/google`;
-              }}
-            />
             <Route exact path="/teacherinfo" component={TeacherInfo} />
           </Switch>
+          <Footer />
         </Router>
       </div>
     );

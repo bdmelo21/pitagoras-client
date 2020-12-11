@@ -1,17 +1,15 @@
 import React from "react";
 import "react-phone-number-input/style.css";
+import "bulma/css/bulma.css";
 import AuthService from "../../utils/auth";
 import {
   Container,
   FormWrap,
-  Icon,
   FormContent,
   Form,
   FormH1,
   FormLabel,
   FormInput,
-  FormButton,
-  Text,
 } from "./SignUpElements";
 
 class TeacherInfo extends React.Component {
@@ -25,7 +23,7 @@ class TeacherInfo extends React.Component {
     phonenumber: "",
     subject: "Português 1ºCiclo",
     info: "",
-    pricehour: 0,
+    pricehour: null,
     creditcard: "",
   };
   handleChange = (event) => {
@@ -59,10 +57,6 @@ class TeacherInfo extends React.Component {
         <Container>
           <FormWrap>
             <FormContent>
-              <FormH1>
-                Thank you for supporting this app. We need some informations for
-                you to start teaching
-              </FormH1>
               <Form onSubmit={this.handleFormSubmit}>
                 <FormLabel>First Name:</FormLabel>
                 <FormInput
@@ -117,6 +111,7 @@ class TeacherInfo extends React.Component {
                 ></FormInput>
                 <FormLabel>Subject</FormLabel>
                 <select
+                  className="others-css-inputs"
                   name="subject"
                   value={this.state.subject}
                   onChange={this.handleChange}
@@ -283,19 +278,21 @@ class TeacherInfo extends React.Component {
                     Materiais e Tecnologias 12ºAno
                   </option>
                 </select>
-                <br></br>
-                <label>Class Price</label>
+
+                <FormLabel>Class Price</FormLabel>
                 <input
+                  className="others-css-inputs"
                   type="number"
                   name="pricehour"
-                  min="0"
+                  min="10"
+                  placeholder="10"
                   value={this.state.pricehour}
                   onChange={this.handleChange}
                 ></input>
-                <span class="unit">€/hour</span>
-                <br></br>
-                <label>Some info about your teachings</label>
+                <p className="span-teachers">€/hour</p>
+                <FormLabel>Some info about your teachings</FormLabel>
                 <input
+                  className="others-css-inputs"
                   type="text"
                   size="150"
                   name="info"
@@ -304,20 +301,22 @@ class TeacherInfo extends React.Component {
                   value={this.state.info}
                   onChange={this.handleChange}
                 ></input>
-                <br></br>
-                <label>CreditCard Number</label>
+                <FormLabel>CreditCard Number</FormLabel>
                 <input
+                  className="others-css-inputs"
                   type="text"
                   name="creditcard"
                   value={this.state.creditcard}
                   onChange={this.handleChange}
                 ></input>
-                <p>
+                <p className="info-paragraph">
                   Please notice that Pitagoras does its payments on every
                   wednesday. By this reason, you may face some delays receiving
                   the payment of your teachings.
                 </p>
-                <button>Create</button>
+                <button type="submit" class="button is-success">
+                  Create
+                </button>
               </Form>
             </FormContent>
           </FormWrap>
